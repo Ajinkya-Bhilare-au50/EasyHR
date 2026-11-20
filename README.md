@@ -9,6 +9,23 @@ It follows the module list in `documentation.md` and the navigation in `EasyHR_S
 | API | Python FastAPI, SQLAlchemy 2, Pydantic v2, Argon2, JWT in an httpOnly cookie | `api/` |
 | Database | PostgreSQL 17 (Docker) | `docker-compose.yml` |
 
+## Features
+
+| Module | What it does |
+|---|---|
+| Dashboard | Check-in/out widget, leave balances, attendance summary, upcoming holidays, birthdays, pending approvals |
+| Attendance | Check in/out (office or home), daily team status, missed-punch corrections (rationalization) with approval |
+| Leave | Apply with a backup colleague, multi-level approval, balances, history, LWP/LOP handling |
+| Holiday | Company calendar, optional holidays with approval, uptake reports |
+| Profile | Professional, personal, documents and compensation tabs, with visibility by role |
+| Org chart | Top-down and flat views, filters by department, branch and more, export |
+| Employees (HR) | Add and edit people, reporting lines, roles, **onboarding documents checklist** |
+| Reports (HR) | Holiday report and a full audit log of every change |
+| Settings (HR) | Shift and calendar, approval rules, leave types, holiday calendar, custom roles, payroll lock |
+| Master console | Platform owner manages companies and enabled modules |
+
+Across the app: **light and dark mode**, layouts that work on phones and desktops, skeleton placeholders while data loads, in-app notifications and chat.
+
 ## Run it locally
 
 Use three terminals, each starting in the `EasyHR` folder. The commands below are for Windows PowerShell, which does not accept bash's `&&`, so each command goes on its own line.
@@ -28,6 +45,8 @@ Copy-Item .env.example .env
 .\.venv\Scripts\python.exe -m app.seed        # runs migrations (alembic upgrade head) + loads demo data
 # every time:
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --reload-dir app --port 8000
+# after pulling new code that adds a migration (e.g. the onboarding documents column):
+.\.venv\Scripts\python.exe -m alembic upgrade head
 ```
 Calling the venv's `python.exe` directly avoids `Activate.ps1`, which PowerShell's default execution policy often blocks. On macOS or Linux, use `.venv/bin/python` instead.
 
@@ -99,6 +118,13 @@ Roles are sets of permission codes such as `attendance.rationalize.approve`. The
 - Every create, approve, reject, cancel and admin change is written to `audit_logs`, which you can view under **Reports → Audit log**.
 - Login and punch requests are rate-limited.
 
+### Onboarding documents (`api/app/onboarding.py`)
+HR records which documents a new joiner has handed over by ticking a checklist in **Employees → Add / Edit employee → Documents provided**. Only the checklist is stored, never the files themselves.
+- The list (signed offer letter, government photo ID, PAN card, address proof, education certificates, relieving letter, last 3 months' payslips, bank details, signed NDA, emergency contact form) is defined once in `ONBOARDING_DOCUMENTS`. To add a document, add a line there. Don't rename existing keys, because they are stored in the database.
+- Each ticked document stores the date it was marked (`users.onboarding_docs`, JSONB `{key: "YYYY-MM-DD"}`). Unticking removes it. Unknown keys are rejected.
+- The Employees list shows progress per person (for example `5/10`) and a **Documents pending** count. The profile has a read-only **Documents** tab.
+- HR can change the checklist. The employee and their managers can see it. Other colleagues can't.
+
 ### Design system (`web/src/app/globals.css`, `web/src/components/ui/`)
 The colour, type, radius, spacing and shadow tokens all live in `@theme`. Every page is built from the same shared components:
 - Button, Card, Badge / StatusBadge / AttendanceBadge
@@ -109,10 +135,17 @@ The colour, type, radius, spacing and shadow tokens all live in `@theme`. Every 
 
 The check-in widget is a single component used on both the Dashboard and Attendance pages.
 
+### Light and dark mode
+A sun/moon button in the header (also on the sign-in page and in the master console) switches themes. The first visit follows the operating system setting; after that the choice is remembered in the browser. Dark mode only redefines the colour tokens under `html[data-theme="dark"]` in `globals.css`, so components need no theme-specific code. `web/public/theme-init.js` applies the saved theme before the page paints, so there is no flash of the wrong theme.
+
+### Branding
+- A thin **"Developed by Ajinkya Bhilare"** banner sits at the top of the app, the sign-in page and the master console (`CreditBanner` in `components/shell/theme.tsx`). Its close button hides it for the rest of the browser session. It is left out when printing.
+- The sign-in page's brand panel has an illustration of offices in several countries and time zones connected to one workspace (`components/features/global-offices-art.tsx`). It scales with the window height and hides on windows shorter than 680 px, where it would be too small to read.
+
 ### Performance and loading states
 - **API:** list endpoints load related people and approval steps in batches instead of one query per row. The tenant filter is built once per company and then reused. A typical endpoint answers in about 20 ms.
 - **Frontend cache:** `useApi` keeps the last response for each URL. Revisiting a page shows it instantly and refreshes it in the background. Identical requests made at the same time share one fetch.
-- **Skeleton screens:** each route has a `loading.tsx` that mirrors that page's layout (`components/ui/skeletons.tsx`). KPI cards, tables, lists, the org chart, chat and pickers all show grey placeholder blocks while their data loads. A thin progress bar at the top shows page navigation in progress.
+- **Skeleton screens:** each route has a `loading.tsx` that mirrors that page's layout (`components/ui/skeletons.tsx`). KPI cards, tables, forms, checklists, lists, the org chart, chat, notifications, people search and pickers all show grey placeholder blocks while their data loads. A thin progress bar at the top shows page navigation in progress.
 
 ## Project layout
 
@@ -120,6 +153,7 @@ The check-in widget is a single component used on both the Dashboard and Attenda
 api/app/
   main.py            app, CORS, rate limiting
   models.py          all tables (companies, users, RBAC, attendance, leave, holiday, approvals, audit, notifications, messages)
+  onboarding.py      onboarding documents checklist definition
   tenancy.py         central company scoping
   deps.py            auth context, permission checks, reportee hierarchy
   services/          attendance recalculation + rules, approval engine, leave-day calculation
@@ -129,7 +163,7 @@ web/src/
   app/(app)/         Dashboard, Profile, Org chart, Leaves, Attendance, Holiday, Employees, Reports, Settings
   app/login, app/master
   components/ui/     design-system components
-  components/shell/  sidebar, header (search, notifications, chat, help, user menu), auth context
+  components/shell/  sidebar, header (search, notifications, chat, help, user menu), auth context, theme toggle and banner
   components/features/  one file per module
 ```
 
@@ -148,6 +182,7 @@ python -m app.seed --reset                           # wipe the DB, migrate from
 The database URL comes from `DATABASE_URL` in `api/.env`. Autogenerate treats a renamed column as a drop plus an add, which loses data, so edit those migrations by hand.
 
 ## Not yet built
+- Onboarding beyond the documents checklist: email invites (HR still sets the first password), document file uploads, onboarding task lists, probation tracking and CSV bulk import.
 - SAML/OIDC SSO: `/api/auth/sso/saml` returns 501.
 - Mobile app and biometric device service (documentation phase 8).
 - Background jobs (Redis/BullMQ) and email notifications. Notifications are in-app only.
