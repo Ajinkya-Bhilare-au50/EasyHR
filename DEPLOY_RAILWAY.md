@@ -82,7 +82,7 @@ It's safe to run repeatedly. Check the deploy logs for `bootstrap: created maste
 ## 5. Optional: your own domain and company subdomains
 
 - **Custom domain:** web → Settings → Networking → **Custom Domain**, e.g. `hr.yourcompany.com`, then add the DNS record Railway shows you.
-- **Company subdomains** (e.g. `acme.hr.yourcompany.com`): also add a wildcard custom domain `*.hr.yourcompany.com` to the web service, and set `BASE_DOMAIN=hr.yourcompany.com` on the api service. The sign-in page then fills in the workspace automatically. Without this, users type their workspace name on the sign-in page.
+- **Company subdomains** (e.g. `acme.hr.yourcompany.com`): also add a wildcard custom domain `*.hr.yourcompany.com` to the web service. Then set `BASE_DOMAIN=hr.yourcompany.com` on the api service and `NEXT_PUBLIC_BASE_DOMAIN=hr.yourcompany.com` on the web service, and redeploy web, since this value is baked into the build. The sign-in page then fills in the workspace automatically. Without this, users type their workspace name on the sign-in page. That's also what happens on the `*.up.railway.app` address.
 
 ## How deploys work after setup
 

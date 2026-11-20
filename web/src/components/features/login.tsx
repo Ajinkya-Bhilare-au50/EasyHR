@@ -19,11 +19,23 @@ const FEATURES = [
 
 const noopSubscribe = () => () => {};
 
-/** Tenant from the address, e.g. alphabet-inc.localhost or alphabet-inc.easyhr.app -> "alphabet-inc". */
+/**
+ * Base domain that company subdomains live under. Must match the API's BASE_DOMAIN. Baked in at
+ * build time. Default "localhost" (alphabet-inc.localhost:3000 in development).
+ */
+const BASE_DOMAIN = (process.env.NEXT_PUBLIC_BASE_DOMAIN || "localhost").toLowerCase();
+
+/**
+ * Tenant from the address: only `<workspace>.<BASE_DOMAIN>`, e.g. alphabet-inc.localhost or
+ * acme.hr.example.com -> "acme". Any other host (e.g. a hosting address like
+ * web-production-1234.up.railway.app) is not a company subdomain, so the workspace field stays editable.
+ */
 function workspaceFromHost() {
-  const host = window.location.hostname;
-  const sub = host.endsWith(".localhost") || host.split(".").length > 2 ? host.split(".")[0] : "";
-  return sub && sub !== "www" ? sub : "";
+  const host = window.location.hostname.toLowerCase();
+  const suffix = `.${BASE_DOMAIN}`;
+  if (!host.endsWith(suffix)) return "";
+  const sub = host.slice(0, -suffix.length);
+  return sub && !sub.includes(".") && sub !== "www" ? sub : "";
 }
 
 function rememberedWorkspace() {

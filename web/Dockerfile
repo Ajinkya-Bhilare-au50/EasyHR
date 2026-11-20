@@ -12,8 +12,10 @@ WORKDIR /app
 # Railway passes service variables to the build when they are declared with ARG.
 ARG API_URL
 ARG NEXT_PUBLIC_SHOW_DEMO_LOGINS
+ARG NEXT_PUBLIC_BASE_DOMAIN
 ENV API_URL=$API_URL \
     NEXT_PUBLIC_SHOW_DEMO_LOGINS=$NEXT_PUBLIC_SHOW_DEMO_LOGINS \
+    NEXT_PUBLIC_BASE_DOMAIN=$NEXT_PUBLIC_BASE_DOMAIN \
     NEXT_OUTPUT=standalone \
     NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
