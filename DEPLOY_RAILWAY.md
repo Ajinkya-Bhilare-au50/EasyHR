@@ -67,6 +67,7 @@ It's safe to run repeatedly. Check the deploy logs for `bootstrap: created maste
    |---|---|
    | `API_URL` | `http://${{api.RAILWAY_PRIVATE_DOMAIN}}:8000` |
    | `NEXT_PUBLIC_SHOW_DEMO_LOGINS` | `false`, or `true` if you set `SEED_DEMO=true` |
+   | `NEXT_PUBLIC_DEMO_MASTER_LOGIN` | `false`. Hides the demo "Platform admin" option, whose account (`admin@easyhr.app`) only exists in local development. Your master admin is the `MASTER_ADMIN_EMAIL` account |
    | `PORT` | `3000` |
 
    Both `API_URL` and `NEXT_PUBLIC_SHOW_DEMO_LOGINS` are **baked into the build**. After changing either one, redeploy the web service so it rebuilds. The build stops with a clear error if `API_URL` is missing.

@@ -48,12 +48,17 @@ function rememberedWorkspace() {
 
 /** Demo accounts created by `python -m app.seed`. Set NEXT_PUBLIC_SHOW_DEMO_LOGINS=false to hide the picker. */
 const SHOW_DEMO = process.env.NEXT_PUBLIC_SHOW_DEMO_LOGINS !== "false";
+/** The demo master admin (admin@easyhr.app) only exists when the seed created it, i.e. locally. A hosted
+ *  demo has its own real master admin, so set NEXT_PUBLIC_DEMO_MASTER_LOGIN=false there to drop the option. */
+const SHOW_DEMO_MASTER = process.env.NEXT_PUBLIC_DEMO_MASTER_LOGIN !== "false";
 const DEMO_PASSWORD = "Password@123";
 const DEMO_ACCOUNTS = [
   { id: "2140", group: "Key roles", label: "Arjun Patel – Employee (2140)", workspace: "alphabet-inc", login: "2140", password: DEMO_PASSWORD },
   { id: "1010", group: "Key roles", label: "Priya Sharma – Manager (1010)", workspace: "alphabet-inc", login: "1010", password: DEMO_PASSWORD },
   { id: "1003", group: "Key roles", label: "Kavya Nair – HR / company admin (1003)", workspace: "alphabet-inc", login: "1003", password: DEMO_PASSWORD },
-  { id: "master", group: "Key roles", label: "Platform admin – Master admin console", workspace: "admin", login: "admin@easyhr.app", password: "Admin@12345" },
+  ...(SHOW_DEMO_MASTER
+    ? [{ id: "master", group: "Key roles", label: "Platform admin – Master admin console", workspace: "admin", login: "admin@easyhr.app", password: "Admin@12345" }]
+    : []),
   ...[
     ["1001", "Ananya Iyer – CEO"],
     ["1002", "Rohan Mehta – Head of Engineering"],
