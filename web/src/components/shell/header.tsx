@@ -26,7 +26,7 @@ function IconButton({ label, onClick, children, badge }: { label: string; onClic
       onClick={onClick}
       aria-label={label}
       title={label}
-      className="relative grid size-10 place-items-center rounded-control text-ink-2 transition-colors hover:bg-neutral-soft hover:text-ink"
+      className="relative grid size-9 place-items-center rounded-control text-ink-2 transition-colors hover:bg-neutral-soft hover:text-ink sm:size-10"
     >
       {children}
       {!!badge && (
@@ -228,7 +228,8 @@ export function Header({ onMenu }: { onMenu: () => void }) {
       <button onClick={onMenu} aria-label="Open navigation" className="-ml-1 grid size-10 place-items-center rounded-control text-ink-2 hover:bg-neutral-soft lg:hidden">
         <Menu size={22} />
       </button>
-      <div className="min-w-0 shrink-0">
+      {/* Shrinks (the title truncates) so the icon row always fits, down to 320px-wide phones. */}
+      <div className="min-w-0 shrink">
         <p className="hidden text-helper text-ink-3 sm:block">{me.company?.name}</p>
         <p className="truncate text-card text-ink">{titleFor(pathname)}</p>
       </div>
@@ -236,7 +237,7 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         <GlobalSearch />
       </div>
       <div className="flex items-center gap-0.5">
-        <ThemeToggle />
+        <ThemeToggle className="size-9 sm:size-10" />
         <Notifications />
         <IconButton label="Messages" onClick={() => setChat(true)} badge={conv?.unread}>
           <MessageCircle size={20} />

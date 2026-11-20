@@ -61,8 +61,10 @@ export function ProfileView() {
 
   return (
     <div className="space-y-6">
-      <Card className="overflow-hidden">
-        <div className="h-24 bg-primary bg-[radial-gradient(circle_at_85%_20%,rgba(94,234,212,0.18),transparent_45%)]" />
+      {/* No overflow-hidden on this card: it would clip the photo menu that drops below the avatar.
+          The banner rounds its own top corners instead (card radius minus the 1px border). */}
+      <Card>
+        <div className="h-24 rounded-t-[calc(var(--radius-card)-1px)] bg-primary bg-[radial-gradient(circle_at_85%_20%,rgba(94,234,212,0.18),transparent_45%)]" />
         <div className="flex flex-col gap-5 px-5 pb-5 sm:flex-row sm:items-end sm:px-6">
           <ProfilePhoto
             user={data.user}
@@ -80,11 +82,15 @@ export function ProfileView() {
             </div>
             <p className="text-body text-ink-2">{p.designation} · {p.department}</p>
           </div>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-body text-ink-2 sm:flex sm:flex-wrap">
-            <span className="inline-flex items-center gap-1.5"><IdCard size={16} className="text-ink-3" />{p.employeeCode}</span>
-            <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-ink-3" />{p.branch}</span>
-            <span className="inline-flex items-center gap-1.5"><Mail size={16} className="text-ink-3" />{p.workEmail}</span>
-            <span className="inline-flex items-center gap-1.5"><CalendarDays size={16} className="text-ink-3" />{p.tenure ?? "—"}</span>
+          {/* Phones: 2 columns, but the email takes a full row (it is usually the longest) and every
+              item truncates instead of running into its neighbour. sm+: one wrapping row. */}
+          <div className="grid min-w-0 grid-cols-2 gap-x-6 gap-y-2 text-body text-ink-2 sm:flex sm:flex-wrap">
+            <span className="inline-flex min-w-0 items-center gap-1.5"><IdCard size={16} className="shrink-0 text-ink-3" /><span className="truncate">{p.employeeCode}</span></span>
+            <span className="inline-flex min-w-0 items-center gap-1.5"><MapPin size={16} className="shrink-0 text-ink-3" /><span className="truncate">{p.branch}</span></span>
+            <span className="col-span-2 inline-flex min-w-0 max-w-full items-center gap-1.5 sm:col-span-1" title={p.workEmail}>
+              <Mail size={16} className="shrink-0 text-ink-3" /><span className="truncate">{p.workEmail}</span>
+            </span>
+            <span className="inline-flex min-w-0 items-center gap-1.5"><CalendarDays size={16} className="shrink-0 text-ink-3" /><span className="truncate">{p.tenure ?? "—"}</span></span>
           </div>
         </div>
       </Card>
