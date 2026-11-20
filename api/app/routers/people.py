@@ -12,6 +12,7 @@ from ..models import (
     Compensation, Holiday, LeaveBalance, LeaveRequest, LeaveType, Message, Notification, Rationalization,
     HolidayRequest, User,
 )
+from ..onboarding import documents_status
 from ..services import approvals
 from ..services.attendance import local_today
 
@@ -58,6 +59,7 @@ def profile(user_ref: str, ctx: Ctx = Depends(get_ctx), db: Session = Depends(ge
             "marital_status": u.marital_status, "address": u.address,
         }
         data["other_details"] = u.other_details or {}
+        data["documents"] = documents_status(u.onboarding_docs)
     # Compensation: only the employee themself or HR.
     if is_self or ctx.can("profile.view.all"):
         comps = list(db.scalars(select(Compensation).where(Compensation.user_id == u.id)

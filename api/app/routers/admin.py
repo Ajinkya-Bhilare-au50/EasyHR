@@ -12,6 +12,7 @@ from ..audit import audit
 from ..common import CamelModel, brief, company_settings, ensure_balances, resolve_user, search_filter, tenure
 from ..db import get_db
 from ..deps import Ctx, require
+from ..onboarding import apply_documents, documents_catalog, documents_status
 from ..models import (
     AuditLog, Compensation, Holiday, LeaveType, PayrollLock, Permission, Role, RolePermission, User, UserRole,
 )
@@ -100,11 +101,14 @@ class EmployeeIn(CamelModel):
     address: str | None = None
     status: str = "active"
     annual_ctc: float | None = None
+    # Keys of onboarding documents handed over (app/onboarding.py). None = leave the checklist unchanged.
+    documents_provided: list[str] | None = None
 
 
 def _emp_dict(db: Session, u: User) -> dict:
     return {**brief(u), "manager": brief(u.manager), "roles": [{"id": r.id, "name": r.name} for r in u.roles],
             "status": u.status, "joined_on": u.joined_on, "date_of_birth": u.date_of_birth, "tenure": tenure(u.joined_on),
+            "documents": documents_status(u.onboarding_docs),
             **{f: getattr(u, f) for f in PROFILE_FIELDS}}
 
 
@@ -125,6 +129,8 @@ def _apply(db: Session, ctx: Ctx, u: User, body: EmployeeIn):
     u.joined_on, u.date_of_birth, u.status = body.joined_on, body.date_of_birth, body.status
     for f in PROFILE_FIELDS:
         setattr(u, f, getattr(body, f))
+    if body.documents_provided is not None:
+        u.onboarding_docs = apply_documents(u.onboarding_docs, body.documents_provided, date.today())
     if body.manager_id:
         mgr = resolve_user(db, body.manager_id)
         if u.id and _would_cycle(db, u.id, mgr.id):
@@ -136,6 +142,12 @@ def _apply(db: Session, ctx: Ctx, u: User, body: EmployeeIn):
     if not roles:
         roles = list(db.scalars(select(Role).where(Role.name == "Employee", Role.company_id.is_(None))))
     u.roles = roles
+
+
+@router.get("/onboarding-documents")
+def onboarding_documents(ctx: Ctx = Depends(employees_perm)):
+    """The documents checklist shown on the add / edit employee form."""
+    return {"items": documents_catalog()}
 
 
 @router.get("/employees")

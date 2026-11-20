@@ -2,7 +2,7 @@
 
 import {
   BadgeIndianRupee, Briefcase, Building2, CalendarDays, FileText, Lock, Mail, MapPin, Pencil, Phone, UserRound, UsersRound,
-  IdCard, Network, Save,
+  FileCheck2, IdCard, Network, Save,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -19,6 +19,7 @@ import { EmptyState, ErrorState, useToast } from "../ui/feedback";
 import { ProfileSkeleton } from "../ui/skeletons";
 import { Field, Input, Select, Textarea } from "../ui/form";
 import { Tabs, useTabParam, type TabItem } from "../ui/tabs";
+import { DocumentsCard, type DocStatus } from "./onboarding-docs";
 
 type Profile = {
   user: UserBrief & { status: string };
@@ -30,6 +31,7 @@ type Profile = {
   };
   personal?: { dateOfBirth: string; gender: string; phone: string; personalEmail: string; bloodGroup: string; maritalStatus: string; address: string };
   otherDetails?: Record<string, string>;
+  documents?: DocStatus;
   compensation?: { effectiveFrom: string; annualCtc: number; currency: string; components: Record<string, number> }[];
 };
 
@@ -41,6 +43,7 @@ export function ProfileView() {
     { key: "other", label: "Other details", icon: FileText },
     { key: "professional", label: "Professional summary", icon: Briefcase },
     { key: "personal", label: "Personal summary", icon: UserRound },
+    ...(data?.documents ? [{ key: "documents", label: "Documents", icon: FileCheck2 }] : []),
     ...(data?.compensation ? [{ key: "compensation", label: "Compensation", icon: BadgeIndianRupee }] : []),
   ];
   const [tab, setTab] = useTabParam(tabs, "professional");
@@ -132,6 +135,8 @@ export function ProfileView() {
       )}
 
       {tab === "personal" && (data.personal ? <Personal data={data.personal} editable={isMe} onSaved={reload} /> : <Restricted />)}
+
+      {tab === "documents" && data.documents && <DocumentsCard docs={data.documents} />}
 
       {tab === "compensation" && data.compensation && <Compensation items={data.compensation} />}
     </div>

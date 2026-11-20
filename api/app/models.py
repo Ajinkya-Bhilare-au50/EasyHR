@@ -15,6 +15,7 @@ from sqlalchemy import (
     Time,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -128,6 +129,9 @@ class User(Base, Timestamped):
     # Professional summary / other details (free-form, company specific)
     professional_summary: Mapped[dict] = mapped_column(JSONB, default=dict)
     other_details: Mapped[dict] = mapped_column(JSONB, default=dict)
+    # Onboarding documents handed over, {doc key: "YYYY-MM-DD" marked}. Checklist only, no files.
+    # Keys: app/onboarding.py ONBOARDING_DOCUMENTS.
+    onboarding_docs: Mapped[dict] = mapped_column(JSONB, default=dict, server_default=text("'{}'::jsonb"))
 
     manager: Mapped["User | None"] = relationship(remote_side="User.id")
     # Not eager: most User loads (names in lists) never need roles. Load explicitly where needed.
