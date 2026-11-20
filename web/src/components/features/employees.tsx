@@ -16,6 +16,7 @@ import { Modal } from "../ui/dialog";
 import { useToast } from "../ui/feedback";
 import { Checkbox, Field, Input, Select } from "../ui/form";
 import { KpiCard, PageHeader } from "../ui/page";
+import { Bone, CheckListSkeleton } from "../ui/skeletons";
 import { Segmented } from "../ui/tabs";
 import { DocsBadge, type DocStatus } from "./onboarding-docs";
 
@@ -105,6 +106,7 @@ function EmployeesViewInner() {
           employee={edit === "new" ? null : edit}
           roles={roles.data?.items ?? []}
           docDefs={docDefs.data?.items ?? []}
+          listsLoading={!roles.data || !docDefs.data}
           people={all.data?.items ?? []}
           onClose={() => setEdit(null)}
           onSaved={() => {
@@ -118,7 +120,7 @@ function EmployeesViewInner() {
   );
 }
 
-function EmployeeForm({ employee, roles, docDefs, people, onClose, onSaved }: { employee: Employee | null; roles: Role[]; docDefs: DocDef[]; people: Employee[]; onClose: () => void; onSaved: () => void }) {
+function EmployeeForm({ employee, roles, docDefs, listsLoading, people, onClose, onSaved }: { employee: Employee | null; roles: Role[]; docDefs: DocDef[]; listsLoading: boolean; people: Employee[]; onClose: () => void; onSaved: () => void }) {
   const [f, setF] = useState<Record<string, string>>(() => {
     const base: Record<string, string> = {
       employeeCode: employee?.employeeCode ?? "", name: employee?.name ?? "", email: employee?.email ?? "", password: "",
@@ -195,6 +197,13 @@ function EmployeeForm({ employee, roles, docDefs, people, onClose, onSaved }: { 
           <div className="mt-4">
             <p className="mb-2 text-[13px] font-medium text-ink">Roles</p>
             <div className="flex flex-wrap gap-x-6 gap-y-2">
+              {listsLoading && !roles.length &&
+                ["w-20", "w-16", "w-28", "w-24"].map((w) => (
+                  <span key={w} className="flex items-center gap-2.5" aria-hidden>
+                    <Bone className="size-4 rounded" />
+                    <Bone className={`h-3.5 ${w}`} />
+                  </span>
+                ))}
               {roles.map((r) => (
                 <Checkbox key={r.id} label={r.name} checked={roleIds.includes(r.id)} onChange={() => setRoleIds((xs) => (xs.includes(r.id) ? xs.filter((x) => x !== r.id) : [...xs, r.id]))} />
               ))}
@@ -222,7 +231,7 @@ function EmployeeForm({ employee, roles, docDefs, people, onClose, onSaved }: { 
         <section>
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <p className="text-helper font-semibold uppercase tracking-wide text-ink-3">
-              Documents provided <span className="ml-1 font-medium normal-case tracking-normal text-ink-2">{docs.length} of {docDefs.length}</span>
+              Documents provided {docDefs.length > 0 && <span className="ml-1 font-medium normal-case tracking-normal text-ink-2">{docs.length} of {docDefs.length}</span>}
             </p>
             <div className="flex gap-1">
               <Button variant="ghost" size="sm" onClick={() => setDocs(docDefs.map((d) => d.key))} disabled={docs.length === docDefs.length}>Select all</Button>
@@ -230,6 +239,7 @@ function EmployeeForm({ employee, roles, docDefs, people, onClose, onSaved }: { 
             </div>
           </div>
           <div className="grid gap-x-6 gap-y-3 rounded-control border border-line bg-subtle p-4 sm:grid-cols-2">
+            {listsLoading && !docDefs.length && <div className="sm:col-span-2"><CheckListSkeleton items={10} /></div>}
             {docDefs.map((d) => (
               <Checkbox
                 key={d.key}

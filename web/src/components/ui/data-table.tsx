@@ -201,7 +201,9 @@ export function DataTable<T>({
               </tr>
             </thead>
             <tbody>
-              {loading && !rows
+              {/* Callers often pass `data?.items ?? []`, so an empty array while loading means "not loaded
+                  yet", not "no records". A reload with rows already on screen keeps showing them. */}
+              {loading && !rows?.length
                 ? Array.from({ length: 5 }).map((_, i) => (
                     <tr key={i} className="border-b border-line last:border-0">
                       {visible.map((c) => (

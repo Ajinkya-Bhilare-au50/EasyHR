@@ -41,13 +41,24 @@ function IconButton({ label, onClick, children, badge }: { label: string; onClic
 function GlobalSearch() {
   const [q, setQ] = useState("");
   const [items, setItems] = useState<UserBrief[]>([]);
+  // The query the current `items` belong to. While it differs from `q`, a search is in flight.
+  const [resultsFor, setResultsFor] = useState("");
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!q.trim()) return;
-    const t = setTimeout(() => api<{ items: UserBrief[] }>(`/employees/lookup?q=${encodeURIComponent(q)}`).then((r) => setItems(r.items)).catch(() => {}), 180);
+    const t = setTimeout(
+      () =>
+        api<{ items: UserBrief[] }>(`/employees/lookup?q=${encodeURIComponent(q)}`)
+          .then((r) => {
+            setItems(r.items);
+            setResultsFor(q);
+          })
+          .catch(() => setResultsFor(q)),
+      180,
+    );
     return () => clearTimeout(t);
   }, [q]);
 
@@ -84,7 +95,20 @@ function GlobalSearch() {
       <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-line bg-surface px-1.5 text-[11px] font-medium text-ink-3">Ctrl K</kbd>
       {open && q.trim() && (
         <div className="absolute left-0 right-0 top-full z-40 mt-2 animate-slide-up rounded-card border border-line bg-surface p-1.5 shadow-raised">
-          {items.length === 0 ? (
+          {resultsFor !== q ? (
+            <div className="space-y-1" aria-busy="true">
+              <span role="status" className="sr-only">Searching</span>
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-2.5 px-2.5 py-2" aria-hidden>
+                  <Bone className="size-8 shrink-0 rounded-full" />
+                  <div className="flex-1 space-y-1.5">
+                    <Bone className="h-3.5 w-2/5" />
+                    <Bone className="h-3 w-3/5" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : items.length === 0 ? (
             <p className="px-3 py-4 text-center text-body text-ink-2">No people match &ldquo;{q}&rdquo;</p>
           ) : (
             items.slice(0, 8).map((u) => (

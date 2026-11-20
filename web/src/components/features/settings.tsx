@@ -11,8 +11,8 @@ import { Button } from "../ui/button";
 import { Card, CardBody, CardHeader } from "../ui/card";
 import { DataTable, type Column } from "../ui/data-table";
 import { Modal } from "../ui/dialog";
-import { Alert, Skeleton, useToast } from "../ui/feedback";
-import { Bone } from "../ui/skeletons";
+import { Alert, useToast } from "../ui/feedback";
+import { Bone, FormCardSkeleton } from "../ui/skeletons";
 import { Checkbox, Field, Input, Select, Switch } from "../ui/form";
 import { PageHeader } from "../ui/page";
 import { Tabs, useTabParam } from "../ui/tabs";
@@ -54,7 +54,17 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 function General() {
   const { data } = useApi<Settings>("/admin/settings");
-  return data ? <GeneralForm initial={data} /> : <Skeleton className="h-96 rounded-card" />;
+  if (data) return <GeneralForm initial={data} />;
+  // Mirrors GeneralForm: "Shift and calendar" and "Rules" cards side by side, Save button below.
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <FormCardSkeleton fields={6} />
+      <FormCardSkeleton fields={6} />
+      <div className="flex justify-end lg:col-span-2">
+        <Bone className="h-btn w-36" />
+      </div>
+    </div>
+  );
 }
 
 function GeneralForm({ initial }: { initial: Settings }) {

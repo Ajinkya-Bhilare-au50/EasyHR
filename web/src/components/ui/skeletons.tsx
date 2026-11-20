@@ -59,6 +59,41 @@ export function KpiSkeleton() {
   );
 }
 
+/** A form card (header + labelled fields in a 2-column grid), e.g. Settings → General. */
+export function FormCardSkeleton({ fields = 6, className }: { fields?: number; className?: string }) {
+  return (
+    <CardShell className={className}>
+      <div className="flex items-center gap-3 border-b border-line px-5 py-4">
+        <Bone className="size-9" />
+        <Bone className="h-4 w-40" />
+      </div>
+      <div className="grid gap-5 p-5 sm:grid-cols-2">
+        {Array.from({ length: fields }).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <Bone className="h-3.5 w-28" />
+            <Bone className="h-input w-full" />
+          </div>
+        ))}
+      </div>
+      <Live label="Loading form" />
+    </CardShell>
+  );
+}
+
+/** A list of checkbox rows, e.g. the onboarding documents or roles while their definitions load. */
+export function CheckListSkeleton({ items = 6, columns = 2 }: { items?: number; columns?: 1 | 2 }) {
+  return (
+    <div className={cn("grid gap-x-6 gap-y-3", columns === 2 && "sm:grid-cols-2")}>
+      {Array.from({ length: items }).map((_, i) => (
+        <div key={i} className="flex items-center gap-2.5">
+          <Bone className="size-4 rounded" />
+          <Bone className={cn("h-3.5", i % 3 === 0 ? "w-48" : i % 3 === 1 ? "w-36" : "w-40")} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function TableSkeleton({ rows = 6, cols = 5, toolbar = true }: { rows?: number; cols?: number; toolbar?: boolean }) {
   return (
     <CardShell>
