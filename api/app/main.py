@@ -24,12 +24,23 @@ _LIMITS = {"/api/auth/login": (10, 60), "/api/attendance/punch": (10, 60)}
 _hits: dict[tuple[str, str], deque] = defaultdict(deque)
 
 
+def _client_ip(request: Request) -> str:
+    """The visitor's IP. In production every request arrives through the Next.js proxy (and the
+    host's edge proxy), so the socket peer is the proxy, which would put all users in one bucket.
+    The first X-Forwarded-For entry is the original client. A client can forge it, which only lets
+    them dodge this soft limit, the same as using more IPs."""
+    fwd = request.headers.get("x-forwarded-for")
+    if fwd:
+        return fwd.split(",")[0].strip()
+    return request.client.host if request.client else "?"
+
+
 @app.middleware("http")
 async def rate_limit(request: Request, call_next):
     rule = _LIMITS.get(request.url.path)
     if rule and request.method == "POST":
         limit, window = rule
-        key = (request.url.path, request.client.host if request.client else "?")
+        key = (request.url.path, _client_ip(request))
         now = time.monotonic()
         q = _hits[key]
         while q and now - q[0] > window:

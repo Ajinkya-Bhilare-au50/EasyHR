@@ -19,7 +19,7 @@ class LoginIn(CamelModel):
 
 
 def set_session_cookie(response: Response, token: str) -> None:
-    response.set_cookie(settings.cookie_name, token, httponly=True, samesite="lax",
+    response.set_cookie(settings.cookie_name, token, httponly=True, samesite="lax", secure=bool(settings.cookie_secure),
                         max_age=settings.jwt_expire_minutes * 60, path="/")
 
 
@@ -68,7 +68,7 @@ def login(body: LoginIn, request: Request, response: Response, db: Session = Dep
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie(settings.cookie_name, path="/")
+    response.delete_cookie(settings.cookie_name, path="/", secure=bool(settings.cookie_secure), httponly=True, samesite="lax")
     return {"ok": True}
 
 

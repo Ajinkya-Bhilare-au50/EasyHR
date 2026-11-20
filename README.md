@@ -100,6 +100,14 @@ The sign-in page has a **Try a demo account** dropdown. Picking an account fills
 
 > These are demo credentials created by `python -m app.seed`. Don't use them in a real deployment. To hide the dropdown, set `NEXT_PUBLIC_SHOW_DEMO_LOGINS=false` in `web/.env.local` and restart `npm run dev`.
 
+## Deploy
+
+EasyHR is set up to deploy on **Railway**: Postgres, the API and the website run as three services in one region (Singapore, the closest to India), talking over Railway's private network. Step-by-step guide: **[DEPLOY_RAILWAY.md](DEPLOY_RAILWAY.md)**.
+
+- `api/Dockerfile`: runs migrations and first-run setup (`python -m app.bootstrap`), then uvicorn with 2 workers.
+- `web/Dockerfile`: a production Next.js build (standalone server).
+- Production settings (`ENVIRONMENT=production`) require a real `JWT_SECRET`, make the session cookie HTTPS-only, and create the master admin from `MASTER_ADMIN_EMAIL` / `MASTER_ADMIN_PASSWORD` instead of loading demo data.
+
 ## How it's built
 
 ### Multi-tenancy (`api/app/tenancy.py`)
