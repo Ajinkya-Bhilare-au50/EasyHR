@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+/* `short:` = windows under 960px tall (typical laptops), used to compact the login brand panel. */
+@custom-variant short (@media (max-height: 959px));
+
+/* ==========================================================================
+   EasyHR design tokens. Every colour, radius, size and type style used in the
+   app comes from here. Do not hard-code colours in components.
+   ========================================================================== */
+
+@theme {
+  /* Brand */
+  --color-primary: #1e3a5f;
+  --color-primary-hover: #172f4d;
+  --color-primary-soft: #e8eef6;
+  --color-primary-ink: #1e3a5f; /* primary-coloured text, e.g. on primary-soft chips */
+  --color-sidebar: #1e3a5f; /* sidebar and brand panels; stays dark in both themes */
+  --color-secondary: #2563eb;
+  --color-secondary-soft: #eff4ff;
+  --color-secondary-soft-hover: #e2ebff;
+  --color-accent: #0f766e;
+  --color-accent-soft: #ecfdf8;
+  --color-accent-line: #99f6e4;
+
+  /* Surfaces */
+  --color-canvas: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-subtle: #f8fafc;
+  --color-line: #e2e8f0;
+  --color-line-strong: #cbd5e1;
+
+  /* Text */
+  --color-ink: #172033;
+  --color-ink-2: #64748b;
+  --color-ink-3: #94a3b8;
+
+  /* Semantic */
+  --color-success: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-success-line: #bbf7d0;
+  --color-warning: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-warning-line: #fde68a;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+  --color-danger-line: #fecaca;
+  --color-info: #1d4ed8;
+  --color-info-soft: #eff6ff;
+  --color-info-line: #bfdbfe;
+  --color-neutral: #475569;
+  --color-neutral-soft: #f1f5f9;
+  --color-neutral-line: #e2e8f0;
+
+  /* Typography (Inter) */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-page: 26px;
+  --text-page--line-height: 34px;
+  --text-page--font-weight: 600;
+  --text-section: 19px;
+  --text-section--line-height: 28px;
+  --text-section--font-weight: 600;
+  --text-card: 15px;
+  --text-card--line-height: 22px;
+  --text-card--font-weight: 600;
+  --text-body: 14px;
+  --text-body--line-height: 21px;
+  --text-helper: 12px;
+  --text-helper--line-height: 17px;
+  --text-kpi: 30px;
+  --text-kpi--line-height: 36px;
+  --text-kpi--font-weight: 700;
+
+  /* Shape + elevation */
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-raised: 0 4px 6px -2px rgb(16 24 40 / 0.05), 0 12px 24px -4px rgb(16 24 40 / 0.1);
+  --shadow-focus: 0 0 0 3px rgb(37 99 235 / 0.18);
+
+  /* Layout */
+  --spacing-sidebar: 250px;
+  --spacing-sidebar-collapsed: 76px;
+  --spacing-header: 68px;
+  --spacing-page: 28px;
+  --spacing-btn: 40px;
+  --spacing-input: 42px;
+
+  --animate-fade-in: fade-in 160ms ease-out;
+  --animate-slide-up: slide-up 180ms ease-out;
+  --animate-slide-in-right: slide-in-right 200ms ease-out;
+  --animate-slide-in-left: slide-in-left 200ms ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+  }
+}
+
+
+/* ==========================================================================
+   Dark theme. <html data-theme="dark"> is set before first paint by the inline
+   script in app/layout.tsx (saved choice, else the OS setting) and toggled by
+   ThemeToggle. Only token values change; components keep using the same names.
+   ========================================================================== */
+:root { color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-primary: #2f5d94;
+  --color-primary-hover: #3a6ba6;
+  --color-primary-soft: #1a2a40;
+  --color-primary-ink: #a9c6ec;
+  --color-sidebar: #0f1a2b;
+  --color-secondary: #3b82f6;
+  --color-secondary-soft: #16264a;
+  --color-secondary-soft-hover: #1c3060;
+  --color-accent: #14b8a6;
+  --color-accent-soft: #0e2a29;
+  --color-accent-line: #134e48;
+
+  --color-canvas: #0b1120;
+  --color-surface: #121a2b;
+  --color-subtle: #172136;
+  --color-line: #253149;
+  --color-line-strong: #34425e;
+
+  --color-ink: #e6ebf3;
+  --color-ink-2: #9eabc0;
+  --color-ink-3: #6f7e96;
+
+  --color-success: #22a35a;
+  --color-success-soft: #0f2a1b;
+  --color-success-line: #1d4d31;
+  --color-warning: #d97706;
+  --color-warning-soft: #2b1f0b;
+  --color-warning-line: #5c3e0e;
+  --color-danger: #ef4444;
+  --color-danger-soft: #2d1416;
+  --color-danger-line: #5e2125;
+  --color-info: #60a5fa;
+  --color-info-soft: #13213d;
+  --color-info-line: #1e3a6b;
+  --color-neutral: #a3b1c4;
+  --color-neutral-soft: #1b2539;
+  --color-neutral-line: #2b3750;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.35);
+  --shadow-raised: 0 4px 6px -2px rgb(0 0 0 / 0.35), 0 12px 24px -4px rgb(0 0 0 / 0.5);
+  --shadow-focus: 0 0 0 3px rgb(59 130 246 / 0.35);
+}
+
+/* Credit banner: hidden before first paint once dismissed this session. */
+:root[data-credit="hidden"] .credit-banner { display: none; }
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 21px;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: rgb(37 99 235 / 0.15);
+  }
+  :focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+}
+
+@layer utilities {
+  .tabular { font-variant-numeric: tabular-nums; }
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--color-line-strong) transparent; }
+}
+
+/* Org chart connectors (top-down tree) */
+.org-tree ul {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding-top: 24px;
+}
+.org-tree li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 10px 0;
+}
+.org-tree li::before,
+.org-tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 24px;
+  border-top: 1.5px solid var(--color-line-strong);
+}
+.org-tree li::before { right: 50%; }
+.org-tree li::after { left: 50%; border-left: 1.5px solid var(--color-line-strong); }
+.org-tree li:only-child::before,
+.org-tree li:only-child::after { border-top: none; }
+.org-tree li:only-child { padding-top: 24px; }
+.org-tree li:first-child::before,
+.org-tree li:last-child::after { border: 0 none; }
+.org-tree li:last-child::before { border-right: 1.5px solid var(--color-line-strong); border-top-right-radius: 8px; }
+.org-tree li:first-child::after { border-top-left-radius: 8px; }
+.org-tree ul ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 24px;
+  border-left: 1.5px solid var(--color-line-strong);
+}
+.org-tree > ul { padding-top: 0; }
+.org-tree > ul > li { padding-top: 0; }
+.org-tree > ul > li::before,
+.org-tree > ul > li::after { display: none; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+  .credit-banner { display: none !important; }
+  .print-area { box-shadow: none !important; border: none !important; }
+}
