@@ -9,6 +9,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Integer,
+    LargeBinary,
     Numeric,
     String,
     Text,
@@ -132,10 +133,25 @@ class User(Base, Timestamped):
     # Onboarding documents handed over, {doc key: "YYYY-MM-DD" marked}. Checklist only, no files.
     # Keys: app/onboarding.py ONBOARDING_DOCUMENTS.
     onboarding_docs: Mapped[dict] = mapped_column(JSONB, default=dict, server_default=text("'{}'::jsonb"))
+    # Set when a profile photo is uploaded (None = no photo). Doubles as the cache-busting version
+    # in the photo URL. The image itself lives in user_photos so user lists never load it.
+    photo_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     manager: Mapped["User | None"] = relationship(remote_side="User.id")
     # Not eager: most User loads (names in lists) never need roles. Load explicitly where needed.
     roles: Mapped[list["Role"]] = relationship(secondary="user_roles", lazy="select")
+
+
+class UserPhoto(Base):
+    """Profile photo bytes, one row per user. Small (the browser crops to a square and shrinks to
+    ~30 KB before upload). Stored in Postgres so it survives redeploys without extra storage."""
+    __tablename__ = "user_photos"
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"),
+                                               primary_key=True)
+    company_id: Mapped[uuid.UUID | None] = company_fk(nullable=True)  # tenant-scoped like every company table
+    content_type: Mapped[str] = mapped_column(String(30))
+    data: Mapped[bytes] = mapped_column(LargeBinary)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Compensation(Base, Timestamped):

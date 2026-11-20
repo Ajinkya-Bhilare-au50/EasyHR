@@ -6,6 +6,8 @@ export type UserBrief = {
   designation: string | null;
   department: string | null;
   initials: string;
+  /** Profile photo, or null to show initials. */
+  photoUrl?: string | null;
 };
 
 export type Me = {

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import and_, extract, func, or_, select
 from sqlalchemy.orm import Session
 
-from ..common import CamelModel, brief, company_settings, ensure_balances, resolve_user, search_filter, tenure
+from ..common import CamelModel, brief, company_settings, ensure_balances, photo_url, resolve_user, search_filter, tenure
 from ..db import get_db
 from ..deps import Ctx, can_manage_user, get_ctx, reportee_ids, require
 from ..models import (
@@ -165,7 +165,7 @@ def orgchart(criteria: str | None = None, values: str | None = None, fields: str
                 details[f] = getattr(u, f)
         nodes.append({
             "id": u.id, "parent_id": u.manager_id if u.manager_id in keep else None, "name": u.name,
-            "initials": brief(u)["initials"], "employee_code": u.employee_code, "designation": u.designation,
+            "initials": brief(u)["initials"], "photo_url": photo_url(u), "employee_code": u.employee_code, "designation": u.designation,
             "department": u.department, "details": details, "matched": u.id in matched,
             "is_me": u.id == ctx.user.id,
         })

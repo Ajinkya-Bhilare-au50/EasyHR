@@ -58,7 +58,7 @@ export function MasterView() {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Avatar name={me.user.name} size="sm" />
+            <Avatar name={me.user.name} src={me.user.photoUrl} size="sm" />
             <span className="hidden text-body font-medium text-ink sm:block">{me.user.name}</span>
             <Button variant="ghost" size="sm" icon={LogOut} onClick={async () => { await api("/auth/logout", { method: "POST" }); window.location.href = "/login"; }}>Sign out</Button>
           </div>

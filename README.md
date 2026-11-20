@@ -17,7 +17,7 @@ It follows the module list in `documentation.md` and the navigation in `EasyHR_S
 | Attendance | Check in/out (office or home), daily team status, missed-punch corrections (rationalization) with approval |
 | Leave | Apply with a backup colleague, multi-level approval, balances, history, LWP/LOP handling |
 | Holiday | Company calendar, optional holidays with approval, uptake reports |
-| Profile | Professional, personal, documents and compensation tabs, with visibility by role |
+| Profile | Profile photo, plus professional, personal, documents and compensation tabs, with visibility by role |
 | Org chart | Top-down and flat views, filters by department, branch and more, export |
 | Employees (HR) | Add and edit people, reporting lines, roles, **onboarding documents checklist** |
 | Reports (HR) | Holiday report and a full audit log of every change |
@@ -143,6 +143,13 @@ The colour, type, radius, spacing and shadow tokens all live in `@theme`. Every 
 
 The check-in widget is a single component used on both the Dashboard and Attendance pages.
 
+### Profile photos (`api/app/routers/photos.py`, `components/features/profile-photo.tsx`)
+The camera button on a profile picture uploads, changes or removes the photo. Employees can change their own photo, and HR (`employees.manage`) can change anyone's. Photos appear everywhere an avatar does: header, profile, org chart, people search, pickers, chat and birthdays.
+- The browser crops the image to a centred square and shrinks it to 320×320 WebP (or JPEG), usually 20–40 KB. EXIF rotation from phones is respected.
+- The API checks the real file signature (JPEG, PNG or WebP only) and caps uploads at 1 MB. It serves photos only to signed-in users of the same company, with `nosniff`.
+- Photos are stored in Postgres (`user_photos`), so they survive redeploys without extra storage. `users.photo_updated_at` is added to each photo URL (`?v=…`), so browsers cache photos for a year and still see changes immediately.
+- Uploads and removals are recorded in the audit log.
+
 ### Light and dark mode
 A sun/moon button in the header (also on the sign-in page and in the master console) switches themes. The first visit follows the operating system setting; after that the choice is remembered in the browser. Dark mode only redefines the colour tokens under `html[data-theme="dark"]` in `globals.css`, so components need no theme-specific code. `web/public/theme-init.js` applies the saved theme before the page paints, so there is no flash of the wrong theme.
 
@@ -190,7 +197,7 @@ python -m app.seed --reset                           # wipe the DB, migrate from
 The database URL comes from `DATABASE_URL` in `api/.env`. Autogenerate treats a renamed column as a drop plus an add, which loses data, so edit those migrations by hand.
 
 ## Not yet built
-- Onboarding beyond the documents checklist: email invites (HR still sets the first password), document file uploads, onboarding task lists, probation tracking and CSV bulk import.
+- Onboarding beyond the documents checklist: email invites (HR still sets the first password), document file uploads (only profile photos can be uploaded), onboarding task lists, probation tracking and CSV bulk import.
 - SAML/OIDC SSO: `/api/auth/sso/saml` returns 501.
 - Mobile app and biometric device service (documentation phase 8).
 - Background jobs (Redis/BullMQ) and email notifications. Notifications are in-app only.

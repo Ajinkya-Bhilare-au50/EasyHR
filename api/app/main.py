@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 
 from . import tenancy  # noqa: F401  (registers the tenant scoping hook)
 from .common import CamelJSONResponse
-from .routers import admin, attendance, auth, holidays, leave, master, people
+from .routers import admin, attendance, auth, holidays, leave, master, people, photos
 
 app = FastAPI(title="EasyHR API", version="1.0.0", default_response_class=CamelJSONResponse)
 
@@ -51,7 +51,7 @@ async def rate_limit(request: Request, call_next):
     return await call_next(request)
 
 
-for r in (auth, attendance, leave, holidays, people, admin, master):
+for r in (auth, attendance, leave, holidays, people, photos, admin, master):
     app.include_router(r.router)
 
 

@@ -316,7 +316,7 @@ function BirthdaysCard({ items }: { items?: Dashboard["birthdays"] }) {
           <div>
             <div key={cur.user.id} className="flex animate-fade-in flex-col items-center py-2 text-center">
               <div className="relative">
-                <Avatar name={cur.user.name} initials={cur.user.initials} size="xl" />
+                <Avatar name={cur.user.name} initials={cur.user.initials} src={cur.user.photoUrl} size="xl" />
                 {cur.isToday && (
                   <span className="absolute -right-1 -top-1 grid size-8 place-items-center rounded-full bg-warning text-white ring-4 ring-surface">
                     <Cake size={15} />

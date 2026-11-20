@@ -79,7 +79,7 @@ export function EmployeePicker({
       >
         {value ? (
           <>
-            <Avatar name={value.name} initials={value.initials} size="xs" />
+            <Avatar name={value.name} initials={value.initials} src={value.photoUrl} size="xs" />
             <span className="truncate text-ink">{value.name}</span>
             <span className="truncate text-helper text-ink-3">{value.employeeCode}</span>
           </>
@@ -138,7 +138,7 @@ export function EmployeePicker({
                     }}
                     className="flex w-full items-center gap-2.5 rounded-[6px] px-2.5 py-2 text-left hover:bg-neutral-soft"
                   >
-                    <Avatar name={u.name} initials={u.initials} size="sm" />
+                    <Avatar name={u.name} initials={u.initials} src={u.photoUrl} size="sm" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-body font-medium text-ink">{u.name}</span>
                       <span className="block truncate text-helper text-ink-2">

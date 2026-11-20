@@ -121,7 +121,7 @@ function GlobalSearch() {
                 }}
                 className="flex w-full items-center gap-2.5 rounded-[6px] px-2.5 py-2 text-left hover:bg-neutral-soft"
               >
-                <Avatar name={u.name} initials={u.initials} size="sm" />
+                <Avatar name={u.name} initials={u.initials} src={u.photoUrl} size="sm" />
                 <span className="min-w-0">
                   <span className="block truncate text-body font-medium text-ink">{u.name}</span>
                   <span className="block truncate text-helper text-ink-2">{[u.employeeCode, u.designation, u.department].filter(Boolean).join(" · ")}</span>
@@ -247,7 +247,7 @@ export function Header({ onMenu }: { onMenu: () => void }) {
         <Popover
           trigger={(open, toggle) => (
             <button onClick={toggle} aria-label="User menu" className="ml-1 flex items-center gap-2 rounded-control py-1 pl-1 pr-2 hover:bg-neutral-soft">
-              <Avatar name={me.user.name} initials={me.user.initials} size="sm" />
+              <Avatar name={me.user.name} initials={me.user.initials} src={me.user.photoUrl} size="sm" />
               <span className="hidden text-left leading-tight xl:block">
                 <span className="block text-[13px] font-medium text-ink">{me.user.name}</span>
                 <span className="block text-[11px] text-ink-2">{me.roles.filter((r) => r !== "Employee").join(", ") || "Employee"}</span>
@@ -259,7 +259,7 @@ export function Header({ onMenu }: { onMenu: () => void }) {
           {(close) => (
             <div className="w-64">
               <div className="flex items-center gap-3 border-b border-line p-4">
-                <Avatar name={me.user.name} initials={me.user.initials} />
+                <Avatar name={me.user.name} initials={me.user.initials} src={me.user.photoUrl} />
                 <div className="min-w-0">
                   <p className="truncate text-body font-semibold text-ink">{me.user.name}</p>
                   <p className="truncate text-helper text-ink-2">{me.user.email}</p>

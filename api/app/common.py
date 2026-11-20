@@ -70,12 +70,21 @@ def initials(name: str) -> str:
     return "".join(p[0] for p in parts[:2]).upper()
 
 
+def photo_url(u: User) -> str | None:
+    """Profile photo URL, or None for the initials avatar. The version query changes on every
+    upload, so browsers can cache each URL forever."""
+    if not u.photo_updated_at:
+        return None
+    return f"/api/people/{u.id}/photo?v={int(u.photo_updated_at.timestamp())}"
+
+
 def brief(u: User | None) -> dict | None:
     if not u:
         return None
     return {
         "id": u.id, "name": u.name, "employee_code": u.employee_code, "email": u.email,
         "designation": u.designation, "department": u.department, "initials": initials(u.name),
+        "photo_url": photo_url(u),
     }
 
 

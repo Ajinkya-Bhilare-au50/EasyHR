@@ -25,6 +25,7 @@ type OrgNode = {
   parentId: string | null;
   name: string;
   initials: string;
+  photoUrl: string | null;
   employeeCode: string;
   designation: string;
   department: string;
@@ -292,7 +293,7 @@ function NodeCard({
         )}
       >
         <div className="flex items-center gap-2.5">
-          <Avatar name={n.name} initials={n.initials} />
+          <Avatar name={n.name} initials={n.initials} src={n.photoUrl} />
           <div className="min-w-0">
             <p className="truncate text-body font-semibold text-ink">{n.name}</p>
             <p className="truncate text-helper text-ink-2">{fields.includes("designation") ? n.designation : n.employeeCode}</p>

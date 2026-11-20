@@ -33,7 +33,7 @@ export function ChatDrawer({ open, onClose }: { open: boolean; onClose: () => vo
             <button aria-label="Back" onClick={() => setPeer(null)} className="grid size-8 place-items-center rounded-control text-ink-2 hover:bg-neutral-soft">
               <ArrowLeft size={18} />
             </button>
-            <Avatar name={peer.name} initials={peer.initials} size="sm" />
+            <Avatar name={peer.name} initials={peer.initials} src={peer.photoUrl} size="sm" />
             <span className="leading-tight">
               <span className="block">{peer.name}</span>
               <span className="block text-helper font-normal text-ink-2">{peer.designation}</span>
@@ -81,7 +81,7 @@ function Conversations({ onOpen, composing, setComposing }: { onOpen: (u: UserBr
           {data.items.map((c) => (
             <li key={c.user.id}>
               <button onClick={() => onOpen(c.user)} className="flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left hover:bg-subtle">
-                <Avatar name={c.user.name} initials={c.user.initials} />
+                <Avatar name={c.user.name} initials={c.user.initials} src={c.user.photoUrl} />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2">
                     <span className="truncate text-body font-medium text-ink">{c.user.name}</span>

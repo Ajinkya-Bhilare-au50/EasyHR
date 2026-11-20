@@ -20,6 +20,8 @@ import { ProfileSkeleton } from "../ui/skeletons";
 import { Field, Input, Select, Textarea } from "../ui/form";
 import { Tabs, useTabParam, type TabItem } from "../ui/tabs";
 import { DocumentsCard, type DocStatus } from "./onboarding-docs";
+import { ProfilePhoto } from "./profile-photo";
+import { useAuth } from "../shell/auth";
 
 type Profile = {
   user: UserBrief & { status: string };
@@ -39,6 +41,7 @@ export function ProfileView() {
   const params = useParams<{ id?: string }>();
   const id = params?.id ?? "me";
   const { data, error, reload } = useApi<Profile>(`/profile/${id}`);
+  const auth = useAuth();
   const tabs: TabItem[] = [
     { key: "other", label: "Other details", icon: FileText },
     { key: "professional", label: "Professional summary", icon: Briefcase },
@@ -52,13 +55,24 @@ export function ProfileView() {
   if (!data) return <ProfileSkeleton />;
   const p = data.professional;
   const isMe = id === "me";
+  // You can change your own photo; HR can change anyone's (same rule as the API).
+  const isSelf = data.user.id === auth.me.user.id;
+  const canEditPhoto = isSelf || auth.can("employees.manage");
 
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden">
         <div className="h-24 bg-primary bg-[radial-gradient(circle_at_85%_20%,rgba(94,234,212,0.18),transparent_45%)]" />
         <div className="flex flex-col gap-5 px-5 pb-5 sm:flex-row sm:items-end sm:px-6">
-          <Avatar name={data.user.name} initials={data.user.initials} size="xl" className="-mt-10 ring-4 ring-surface" />
+          <ProfilePhoto
+            user={data.user}
+            canEdit={canEditPhoto}
+            className="-mt-10"
+            onChanged={() => {
+              reload();
+              if (isSelf) void auth.refresh(); // header avatar
+            }}
+          />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-page text-ink">{data.user.name}</h1>
@@ -146,7 +160,7 @@ export function ProfileView() {
 function PersonLink({ u }: { u: UserBrief }) {
   return (
     <Link href={`/profile/${u.id}`} className="flex items-center gap-2.5 rounded-control p-1.5 -m-1.5 hover:bg-subtle">
-      <Avatar name={u.name} initials={u.initials} size="sm" />
+      <Avatar name={u.name} initials={u.initials} src={u.photoUrl} size="sm" />
       <span className="min-w-0">
         <span className="block truncate text-body font-medium text-ink">{u.name}</span>
         <span className="block truncate text-helper text-ink-2">{u.designation}</span>
